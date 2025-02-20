@@ -1,0 +1,21 @@
+# Stop Barman service (if running)
+sudo systemctl stop barman
+sudo systemctl disable barman
+
+# Uninstall Barman
+sudo apt-get remove --purge barman
+
+# Remove Barman configuration files and directories
+sudo rm -rf /etc/barman.conf
+sudo rm -rf /etc/barman.d/
+sudo rm -rf /var/lib/barman/
+sudo rm -rf /var/log/barman/
+
+# Edit PostgreSQL configuration to remove archive settings
+sudo nano /usr/local/pgsql/data/postgresql.conf
+# Comment out the following lines:
+# archive_mode = on
+# archive_command = 'test ! -f /var/lib/barman/testdb/incoming/%f && cp %p /var/lib/barman/testdb/incoming/%f'
+
+# Reload PostgreSQL configuration
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data reload
