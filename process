@@ -1,0 +1,44 @@
+# Ensure the PostgreSQL configuration for archiving
+sudo nano /usr/local/pgsql/data/postgresql.conf
+# Add or update the following lines:
+# archive_mode = on
+# archive_command = 'test ! -f /var/lib/barman/testdb/incoming/%f && cp %p /var/lib/barman/testdb/incoming/%f'
+
+# Reload PostgreSQL configuration
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data reload
+
+# Create the main Barman configuration file
+sudo nano /etc/barman.conf
+# Add the following configuration:
+# [barman]
+# barman_user = barman
+# barman_home = /var/lib/barman
+# log_file = /var/log/barman/barman.log
+# log_level = INFO
+# configuration_files_directory = /etc/barman.d
+
+# Create Barman configuration for testdb
+sudo nano /etc/barman.d/testdb.conf
+# Add the following configuration:
+# [testdb]
+# description = "Test PostgreSQL Database"
+# conninfo = host=localhost user=barman dbname=testdb
+# backup_method = rsync
+# retention_policy = RECOVERY WINDOW OF 7 DAYS
+# archiver = on
+
+# Create Barman user and directories
+sudo adduser --system --home /var/lib/barman --shell /bin/bash --group barman
+sudo mkdir -p /var/lib/barman
+sudo mkdir -p /var/log/barman
+sudo chown -R barman:barman /var/lib/barman
+sudo chown -R barman:barman /var/log/barman
+
+# Check Barman configuration
+sudo -u barman barman check testdb
+
+# Perform a backup
+sudo -u barman barman backup testdb
+
+# Verify the backup
+sudo -u barman barman list-backup testdb
