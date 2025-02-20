@@ -1,0 +1,58 @@
+# Download the latest Barman tarball
+wget https://releases.2ndquadrant.com/barman/barman-3.0.0.tar.gz
+
+# Extract the tarball
+tar -xvf barman-3.0.0.tar.gz
+
+# Install dependencies
+sudo apt-get update
+sudo apt-get install python3 python3-pip python3-dev
+sudo pip3 install setuptools argparse python-dateutil requests
+
+# Install Barman
+cd barman-3.0.0
+sudo python3 setup.py install
+
+# Verify the installation
+barman --version
+
+# Create the main Barman configuration file
+sudo nano /etc/barman.conf
+# Add the following configuration:
+# [barman]
+# barman_user = barman
+# barman_home = /var/lib/barman
+# log_file = /var/log/barman/barman.log
+# log_level = INFO
+# configuration_files_directory = /etc/barman.d
+
+# Create Barman user and directories
+sudo adduser --system --home /var/lib/barman --shell /bin/bash --group barman
+sudo mkdir -p /var/lib/barman
+sudo mkdir -p /var/log/barman
+sudo chown -R barman:barman /var/lib/barman
+sudo chown -R barman:barman /var/log/barman
+
+# Configure PostgreSQL for archiving
+sudo nano /usr/local/pgsql/data/postgresql.conf
+# Add or update the following lines:
+# archive_mode = on
+# archive_command = 'test ! -f /var/lib/barman/testdb/incoming/%f && cp %p /var/lib/barman/testdb/incoming/%f'
+
+# Reload PostgreSQL configuration
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data reload
+
+# Add a Barman configuration for testdb
+sudo nano /etc/barman.d/testdb.conf
+# Add the following configuration:
+# [testdb]
+# description = "Test PostgreSQL Database"
+# conninfo = host=localhost user=barman dbname=testdb
+# backup_method = rsync
+# retention_policy = RECOVERY WINDOW OF 7 DAYS
+
+# Perform a backup
+sudo -u barman barman backup testdb
+
+# Verify the backup
+sudo -u barman barman list-backup testdb
