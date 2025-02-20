@@ -1,1 +1,27 @@
  service ssh start
+
+barman list-backup mydb
+
+
+sudo systemctl reset-failed barman
+sudo systemctl restart barman
+
+
+archive_mode = on
+archive_command = 'rsync -a %p barman@192.168.68.160:/var/lib/barman/mydb/incoming/%f'
+wal_level = replica
+
+
+
+
+sudo apt-get remove --purge barman
+sudo rm -rf /etc/barman
+sudo rm -rf /var/lib/barman
+sudo rm -rf /var/log/barman
+sudo deluser --remove-home barman
+sudo rm -rf /home/barman
+sudo rm -rf /usr/local/barman
+ls /etc/barman
+ls /var/lib/barman
+ls /var/log/barman
+ls /home/barman
