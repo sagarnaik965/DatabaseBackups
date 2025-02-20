@@ -25,3 +25,35 @@ ls /etc/barman
 ls /var/lib/barman
 ls /var/log/barman
 ls /home/barman
+
+
+sudo -u barman ssh-keygen -t rsa -b 2048 -f /var/lib/barman/.ssh/id_rsa
+
+
+sudo nano /etc/postgresql/13/main/pg_hba.conf
+host replication barman 127.0.0.1/32 md5
+host all all 127.0.0.1/32 md5
+
+
+sudo nano /etc/postgresql/13/main/postgresql.conf
+archive_mode = on
+archive_command = 'rsync -a %p /var/lib/barman/aadhaar_data_vault/incoming/%f'
+archive_timeout = 60
+
+
+# Start PostgreSQL
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data -l /usr/local/pgsql/data/logfile start
+
+# Stop PostgreSQL
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data stop
+
+# Restart PostgreSQL
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data restart
+#Reload PostgreSQL
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data reload
+
+
+
+
+
+
