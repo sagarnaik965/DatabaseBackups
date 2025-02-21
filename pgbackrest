@@ -1,0 +1,93 @@
+Here’s a **step-by-step guide** for **pgBackRest installation, configuration, backup, and restore** in one go.  
+
+---
+
+### **1️⃣ Install pgBackRest**
+```bash
+sudo apt update && sudo apt install -y pgbackrest
+```
+
+---
+
+### **2️⃣ Configure PostgreSQL for pgBackRest**
+```bash
+sudo nano /usr/local/pgsql/data/postgresql.conf
+```
+**Modify/Add the following lines:**
+```
+archive_mode = on
+archive_command = 'pgbackrest --stanza=testdb archive-push %p'
+wal_level = replica
+max_wal_senders = 3
+hot_standby = on
+```
+**Save & Exit, then restart PostgreSQL:**
+```bash
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data restart
+```
+
+---
+
+### **3️⃣ Configure pgBackRest**
+```bash
+sudo mkdir -p /etc/pgbackrest
+sudo chmod 750 /etc/pgbackrest
+sudo chown postgres:postgres /etc/pgbackrest
+
+sudo mkdir -p /var/lib/pgbackrest
+sudo chmod 750 /var/lib/pgbackrest
+sudo chown postgres:postgres /var/lib/pgbackrest
+
+sudo nano /etc/pgbackrest/pgbackrest.conf
+```
+**Add the following content:**
+```
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-type=posix
+log-level-console=info
+
+[testdb]
+pg1-path=/usr/local/pgsql/data
+```
+**Save & Exit.**
+
+---
+
+### **4️⃣ Create & Verify the Stanza**
+```bash
+sudo -u postgres pgbackrest --stanza=testdb stanza-create
+sudo -u postgres pgbackrest --stanza=testdb check
+```
+
+---
+
+### **5️⃣ Perform a Backup**
+```bash
+sudo -u postgres pgbackrest --stanza=testdb backup
+```
+
+---
+
+### **6️⃣ Restore the Backup**
+```bash
+sudo -u postgres pgbackrest --stanza=testdb restore --delta
+```
+
+---
+
+### **7️⃣ Start PostgreSQL**
+```bash
+sudo systemctl start postgresql
+```
+
+---
+
+### **8️⃣ Verify Restore**
+```bash
+sudo -u postgres psql -c "SELECT now();"
+sudo -u postgres psql -c "\l"
+sudo -u postgres psql -d your_database -c "\dt"
+```
+
+🚀 **Done!** Your PostgreSQL is backed up and restored using pgBackRest!
