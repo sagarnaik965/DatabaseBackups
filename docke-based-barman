@@ -1,0 +1,47 @@
+FROM debian:latest
+
+# Install required dependencies
+RUN apt update && apt install -y \
+  software-properties-common \
+  gnupg2 \
+  curl \
+  barman \
+  barman-cli \
+  rsync \
+  openssh-client \
+  openssh-server \
+  sudo && \
+  curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+  echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+  apt update && apt install -y postgresql-client
+
+# Ensure barman user exists (avoid errors if already created)
+RUN id -u barman &>/dev/null || useradd -m -d /var/lib/barman -s /bin/bash barman
+
+# Set up SSH access (for WAL archiving)
+RUN mkdir -p /var/lib/barman/.ssh && chown -R barman:barman /var/lib/barman/.ssh
+
+# Expose necessary ports
+EXPOSE 22
+
+# Run SSH and Barman services
+CMD ["/usr/sbin/sshd", "-D"]
+
+
+
+
+docker run -d --network host --name barman -v /your/local/path/barman:/var/lib/barman barman:docker
+
+
+docker run -d ^
+  --name postgres-container ^
+  -e POSTGRES_USER=barman ^
+  -e POSTGRES_PASSWORD=barmanpassword ^
+  -e POSTGRES_DB=barman_db ^
+  -v "D:\TECH & SOFT\Docker-Clients\DOCKER-PACKAGING\Barmani-try\PostgreSQL-Disaster-Recovery-With-Barman\postgres_data:/var/lib/postgresql/data" ^
+  -p 5432:5432 ^
+  postgres:13 
+
+
+
+
