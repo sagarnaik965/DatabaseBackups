@@ -30,17 +30,16 @@ CMD ["/usr/sbin/sshd", "-D"]
 
 
 
-docker run -d --network host --name barman -v /your/local/path/barman:/var/lib/barman barman:docker
+docker run -d --network pg-barman-network --name barman -v /your/local/path/barman:/var/lib/barman barman:docker
 
 
 docker run -d ^
-  --name postgres-container ^
-  -e POSTGRES_USER=barman ^
+  --name postgres_container ^
+ --network pg-barman-network ^
   -e POSTGRES_PASSWORD=barmanpassword ^
-  -e POSTGRES_DB=barman_db ^
-  -v "D:\TECH & SOFT\Docker-Clients\DOCKER-PACKAGING\Barmani-try\PostgreSQL-Disaster-Recovery-With-Barman\postgres_data:/var/lib/postgresql/data" ^
+  -v ./ssh:/root/.ssh ^
   -p 5432:5432 ^
-  postgres:13 
+  postgres:13
 
 
 
