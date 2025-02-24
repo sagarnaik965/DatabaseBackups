@@ -91,3 +91,16 @@ sudo -u postgres psql -d your_database -c "\dt"
 ```
 
 🚀 **Done!** Your PostgreSQL is backed up and restored using pgBackRest!
+
+
+Run a full backup:
+
+pgbackrest --stanza=testdb --type=full backup
+
+Run a differential backup:
+
+pgbackrest --stanza=testdb --type=diff backup
+
+Run an incremental backup:
+
+pgbackrest --stanza=testdb --type=incr backup
