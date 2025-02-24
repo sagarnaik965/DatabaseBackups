@@ -1,0 +1,68 @@
+FROM ubuntu:latest
+
+# Install SSH server and utilities
+RUN apt-get update && apt-get install -y openssh-server && \
+    mkdir /var/run/sshd && \
+    echo 'root:root' | chpasswd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
+
+# Expose SSH port
+EXPOSE 22
+
+# Start SSH service
+CMD ["/usr/sbin/sshd", "-D"]
+
+
+docker run -d ^
+    --name ssh-container ^
+    --network pg-network ^
+    -p 2222:22 ^
+    ssh-server
+
+docker run -d ^
+    --name pg-container ^
+    --network pg-network ^
+    -e POSTGRES_USER=postgres ^
+    -e POSTGRES_PASSWORD=postgres ^
+    -e POSTGRES_DB=test_db ^
+    -v "D:/TECH & SOFT/Docker-Clients/DOCKER-PACKAGING/pgBackRest-try/pgdata:/var/lib/postgresql/data" ^
+    -p 5432:5432 ^
+    postgres:latest
+
+
+Step 2: Copy the Public Key to pg-container
+Retrieve the public key:
+bash
+Copy
+Edit
+cat /root/.ssh/id_rsa.pub
+Open another terminal and enter pg-container:
+bash
+Copy
+Edit
+docker exec -it pg-container bash
+Inside pg-container, create an SSH directory and authorized keys file:
+bash
+Copy
+Edit
+mkdir -p /root/.ssh
+echo "PASTE_THE_PUBLIC_KEY_HERE" >> /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+chmod 700 /root/.ssh
+Ensure the SSH service is installed and running on pg-container:
+bash
+Copy
+Edit
+apt update && apt install -y openssh-server
+service ssh start
+Step 3: Test SSH Connection from ssh-container
+Back in ssh-container, try SSH-ing into pg-container:
+bash
+Copy
+Edit
+ssh -o StrictHostKeyChecking=no root@pg-container
+If it logs in without asking for a password, the setup is successful.
+
+
+
