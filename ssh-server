@@ -66,3 +66,65 @@ If it logs in without asking for a password, the setup is successful.
 
 
 
+docker exec -it pg-container psql -U postgres -d test_db
+CREATE TABLE employees (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    position VARCHAR(50),
+    salary DECIMAL(10,2)
+);
+
+INSERT INTO employees (name, position, salary) VALUES
+('Alice', 'Engineer', 75000),
+('Bob', 'Manager', 90000),
+('Charlie', 'Analyst', 65000);
+
+SELECT * FROM employees;
+
+
+Step 2: Configure pgBackRest on ssh-container
+2.1 Create pgBackRest Configuration File
+Access ssh-container:
+bash
+Copy
+Edit
+docker exec -it ssh-container bash
+Create configuration file:
+bash
+Copy
+Edit
+mkdir -p /etc/pgbackrest
+vi /etc/pgbackrest/pgbackrest.conf
+Add the following:
+ini
+Copy
+Edit
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=2
+start-fast=y
+
+[test_db]
+pg1-host=pg-container
+pg1-path=/var/lib/postgresql/data
+Create backup directory:
+bash
+Copy
+Edit
+mkdir -p /var/lib/pgbackrest
+chown postgres:postgres /var/lib/pgbackrest
+chmod 700 /var/lib/pgbackrest
+Step 3: Initialize pgBackRest
+Set permissions for postgres user in ssh-container:
+bash
+Copy
+Edit
+useradd -m postgres
+chown -R postgres:postgres /var/lib/pgbackrest
+Run pgBackRest stanza creation:
+bash
+Copy
+Edit
+pgbackrest --stanza=test_db --log-level-console=info stanza-create
+This initializes the backup structure.
+
