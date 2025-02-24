@@ -1,3 +1,13 @@
+cat /etc/pgbackrest/pgbackrest.conf 
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=2
+repo1-type=posix
+
+[testdb]
+pg1-path=/usr/local/pgsql/data
+
+
 Here’s a **step-by-step guide** for **pgBackRest installation, configuration, backup, and restore** in one go.  
 
 ---
@@ -104,3 +114,7 @@ pgbackrest --stanza=testdb --type=diff backup
 Run an incremental backup:
 
 pgbackrest --stanza=testdb --type=incr backup
+
+
+
+
