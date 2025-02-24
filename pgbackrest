@@ -105,7 +105,7 @@ sudo -u postgres psql -d your_database -c "\dt"
 
 Run a full backup:
 
-pgbackrest --stanza=testdb --type=full backup
+sudo -u postgres pgbackrest  --stanza=testdb --type=full backup
 
 Run a differential backup:
 
@@ -113,7 +113,7 @@ pgbackrest --stanza=testdb --type=diff backup
 
 Run an incremental backup:
 
-pgbackrest --stanza=testdb --type=incr backup
+sudo -u postgres pgbackrest --stanza=testdb --type=incr backup
 
 
 
