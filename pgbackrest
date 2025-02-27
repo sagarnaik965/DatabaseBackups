@@ -46,15 +46,19 @@ sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data status
 
 ### **3️⃣ Configure pgBackRest**
 ```bash
-sudo mkdir -p /etc/pgbackrest
-sudo chmod 750 /etc/pgbackrest
-sudo chown postgres:postgres /etc/pgbackrest
+ mkdir -p /etc/pgbackrest
+ chmod 750 /etc/pgbackrest
+ chown postgres:postgres /etc/pgbackrest
 
-sudo mkdir -p /var/lib/pgbackrest
-sudo chmod 750 /var/lib/pgbackrest
-sudo chown postgres:postgres /var/lib/pgbackrest
+ mkdir -p /var/lib/pgbackrest
+ chmod 750 /var/lib/pgbackrest
+ chown postgres:postgres /var/lib/pgbackrest
 
-sudo nano /etc/pgbackrest/pgbackrest.conf
+ nano /etc/pgbackrest/pgbackrest.conf
+
+ mkdir -p /var/lib/pgbackrest-1
+chown -R postgres:postgres /var/lib/pgbackrest-1
+chmod 750 /var/lib/pgbackrest-1
 ```
 **Add the following content:**
 ```
@@ -127,7 +131,28 @@ Host pg-container
     Port 2222
     User postgres
 
+rm -rf /var/lib/pgbackrest-1/*
+rm -rf /var/lib/postgresql/data/pg_wal/*
 
+mkdir -p /etc/pgbackrest
+touch /etc/pgbackrest/pgbackrest.conf
+chmod 640 /etc/pgbackrest/pgbackrest.conf
+chown postgres:postgres /etc/pgbackrest/pgbackrest.conf
+
+ mkdir -p /var/log/pgbackrest /var/lib/pgbackrest /tmp/pgbackrest
+ chown -R postgres:postgres /var/log/pgbackrest /var/lib/pgbackrest /tmp/pgbackrest
+ chmod -R 750 /var/log/pgbackrest /var/lib/pgbackrest /tmp/pgbackrest
+
+
+sudo apt update && sudo apt install -y vim nano net-tools iputils-ping telnet
+ apt install -y pgbackrest
+
+ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+ ssh-copy-id -i ~/.ssh/id_rsa.pub -p 222 postgres@10.210.4.213
+
+
+ psql -U admin -d test_db
+CREATE USER postgres WITH PASSWORD 'root';
 
 
 📌 Step 1: Create the students Table
