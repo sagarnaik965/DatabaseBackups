@@ -34,6 +34,12 @@ hot_standby = on
 **Save & Exit, then restart PostgreSQL:**
 ```bash
 sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data restart
+
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data stop
+
+
+sudo -u postgres /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data status
+
 ```
 
 ---
@@ -115,6 +121,43 @@ Run an incremental backup:
 
 sudo -u postgres pgbackrest --stanza=testdb --type=incr backup
 
+nano /root/.ssh/config
+Host pg-container
+    HostName 10.210.4.213
+    Port 2222
+    User postgres
+
+
+
+
+📌 Step 1: Create the students Table
+CREATE TABLE students (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    age INT CHECK (age BETWEEN 18 AND 30),
+    email VARCHAR(100) UNIQUE,
+    enrollment_date DATE DEFAULT CURRENT_DATE
+);
+
+📌 Step 2: Insert 100 Random Records
+DO $$
+DECLARE 
+    i INT;
+    first_names TEXT[] := ARRAY['John', 'Jane', 'Alex', 'Emily', 'Chris', 'Sophia', 'David', 'Olivia', 'Michael', 'Emma'];
+    last_names TEXT[] := ARRAY['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Rodriguez', 'Martinez'];
+BEGIN
+    FOR i IN 1..100 LOOP
+        INSERT INTO students (first_name, last_name, age, email, enrollment_date)
+        VALUES (
+            first_names[1 + random() * 9],  -- Random first name
+            last_names[1 + random() * 9],   -- Random last name
+            18 + random() * 12,             -- Random age between 18 and 30
+            CONCAT('student', i, '@example.com'), -- Unique email
+            CURRENT_DATE - (random() * 365)::INT -- Random past enrollment date within a year
+        );
+    END LOOP;
+END $$;
 
 
 
