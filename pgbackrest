@@ -1,3 +1,25 @@
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+# Inside the Docker container, update the package list
+apt-get update
+
+# Install PostgreSQL
+apt-get install -y gnupg
+sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+apt-get update
+apt-get install -y postgresql postgresql-contrib
+
+# Start PostgreSQL service
+service postgresql start
+
+# Set password for postgres user
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'your_password';"
+
+# Verify installation
+psql --version
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
 cat /etc/pgbackrest/pgbackrest.conf 
 [global]
 repo1-path=/var/lib/pgbackrest
