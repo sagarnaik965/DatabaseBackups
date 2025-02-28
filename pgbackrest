@@ -113,17 +113,22 @@ sudo -u postgres psql -d your_database -c "\dt"
 🚀 **Done!** Your PostgreSQL is backed up and restored using pgBackRest!
 
 
-Run a full backup:
-
+# Run a full backup:
 sudo -u postgres pgbackrest  --stanza=testdb --type=full backup
-
-Run a differential backup:
-
+# Run a differential backup:
 pgbackrest --stanza=testdb --type=diff backup
-
-Run an incremental backup:
-
+# Run an incremental backup:
 sudo -u postgres pgbackrest --stanza=testdb --type=incr backup
+
+# Create the stanza
+pgbackrest --stanza=pg-container stanza-create
+
+# Check the stanza
+pgbackrest --stanza=pg-container check
+
+# Run a full backup
+pgbackrest --stanza=pg-container --type=full backup
+
 
 nano /root/.ssh/config
 Host pg-container
@@ -153,6 +158,10 @@ sudo apt update && sudo apt install -y vim nano net-tools iputils-ping telnet
 
  psql -U admin -d test_db
 CREATE USER postgres WITH PASSWORD 'root';
+ALTER USER postgres WITH SUPERUSER;
+
+
+ /usr/lib/postgresql/13/bin/pg_ctl -D /var/lib/postgresql/13/main -l logfile restart
 
 
 📌 Step 1: Create the students Table
