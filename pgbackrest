@@ -152,8 +152,11 @@ chown postgres:postgres /etc/pgbackrest/pgbackrest.conf
 sudo apt update && sudo apt install -y vim nano net-tools iputils-ping telnet
  apt install -y pgbackrest
 
+# SSH related points
  ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
  ssh-copy-id -i ~/.ssh/id_rsa.pub -p 222 postgres@10.210.4.213
+ssh-keygen -f "/root/.ssh/known_hosts" -R "[10.210.4.213]:222"
+
 
 
  psql -U admin -d test_db
