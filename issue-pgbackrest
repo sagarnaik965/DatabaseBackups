@@ -78,4 +78,13 @@ listen_addresses = '*'
 
 
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+# Achival Errors
+
+sudo chown -R postgres:postgres /var/lib/pgbackrest-1
+sudo chmod -R 750 /var/lib/pgbackrest-1
+
+sudo -i -u postgres
+sudo -u postgres ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa
+sudo -u postgres ssh-copy-id postgres@10.210.4.213 -p 222
+
 
