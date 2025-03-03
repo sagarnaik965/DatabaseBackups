@@ -1,0 +1,65 @@
+# BACKUP SERVER 
+cat /etc/pgbackrest/pgbackrest.conf
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=2
+repo1-type=posix
+log-level-console=info
+
+[pg-container]
+pg1-host=pg-container
+pg1-user=postgres
+pg1-path=/var/lib/postgresql/16/main
+pg1-port=5432
+
+::FOR HOST 
+cat  /root/.ssh/config 
+Host pg-container
+    HostName 10.210.4.213
+    Port 222
+    User postgres
+
+
+
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+# PG-CONTAINER 
+ cat /etc/pgbackrest/pgbackrest.conf
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=2
+repo1-type=posix
+
+[pg-container]
+pg1-path=/var/lib/postgresql/16/main
+pg1-user=postgres
+
+listen_addresses = '*'
+
+::postgres.conf
+wal_level = replica
+archive_mode = on
+archive_command = 'pgbackrest --stanza=pg-container archive-push %p'
+
+::pg_hba.conf
+host    all             all             127.0.0.1/32            md5
+host    all             all             0.0.0.0/0               md5
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+### **4️⃣ Create & Verify the Stanza**
+```bash
+sudo -u postgres pgbackrest --stanza=testdb stanza-create
+sudo -u postgres pgbackrest --stanza=testdb check
+```
+
+---
+
+### **5️⃣ Perform a Backup**
+```bash
+sudo -u postgres pgbackrest --stanza=testdb backup
+```
+
+
